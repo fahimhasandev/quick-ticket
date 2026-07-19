@@ -1,13 +1,11 @@
 "use client";
 
 import { logoutUser } from "@/actions/auth.actions";
-import { useRouter } from "next/navigation";
+
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 
 function LogoutButton() {
-  const router = useRouter();
-
   const initialState = {
     success: false,
     message: "",
@@ -18,11 +16,10 @@ function LogoutButton() {
   useEffect(() => {
     if (state.success) {
       toast.success("Logout successfull");
-      router.push("/login");
     } else if (state.message) {
       toast.error(state.message);
     }
-  }, [state, router]);
+  }, [state]);
 
   return (
     <form action={fromAction}>

@@ -17,7 +17,12 @@ export async function createTicket(
     const user = await getCurrentUser();
 
     if (!user) {
-      logEvent("Unauthorized ticket creation");
+      logEvent("Unauthorized ticket creation attemp", "ticket", {}, "warning");
+
+      return {
+        success: false,
+        message: "you must be logined in to create ticket",
+      };
     }
 
     // name = "subject" have to match in the form components
@@ -42,7 +47,14 @@ export async function createTicket(
 
     //Create ticket
     const ticket = await prisma.ticket.create({
-      data: { subject, description, priority },
+      data: {
+        subject,
+        description,
+        priority,
+        user: {
+          connect: { id: user.id },
+        },
+      },
     });
 
     // Sentry.addBreadcrumb({
@@ -88,7 +100,16 @@ export async function createTicket(
 
 export async function getTickets() {
   try {
+    //
+    const user = await getCurrentUser();
+
+    if (!user) {
+      logEvent("Unauthorized ticket fetch attempt", "ticket", {}, "warning");
+      return [];
+    }
+
     const tickets = await prisma.ticket.findMany({
+      where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     });
 
